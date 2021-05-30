@@ -4,6 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 var CryptoJS = require("crypto-js");
+var multer = require("multer");
+var fs = require("fs");
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
 let app = express();
@@ -12,7 +14,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(function (req, res, next) {
   //res.header("Access-Control-Allow-Origin",heroku);
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://instacomplex01.stackblitz.io/"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
