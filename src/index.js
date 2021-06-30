@@ -14,10 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(function (req, res, next) {
   //res.header("Access-Control-Allow-Origin",heroku);
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://instacomplex01.stackblitz.io/"
-  );
+  res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -35,21 +32,22 @@ mongoose.connect(
     }
   }
 );
-app.post("/updateShop/:shopName", (req, res) => {
+app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
   //console.log(req.params.shopName);
-  let name = req.params.shopName;
+  let name = req.params.shopOwnerInstaId;
   let shopData = dataDecrypt(req.body.body);
   console.log(shopData);
-  shopModel.findOneAndUpdate({ shopName: { $eq: name } }, shopData, function (
-    err,
-    data
-  ) {
-    if (err) {
-      res.send({ err: "Internal server error", code: 500, act: err });
+  shopModel.findOneAndUpdate(
+    { shopOwnerInstaId: { $eq: name } },
+    shopData,
+    function (err, data) {
+      if (err) {
+        res.send({ err: "Internal server error", code: 500, act: err });
+      }
+      console.log(data);
+      res.send({ body: "Shop Updated Successfully!!!" });
     }
-    console.log(data);
-    res.send({ body: "Shop Updated Successfully!!!" });
-  });
+  );
 });
 
 app.post("/CreateShop", (req, res) => {
@@ -63,17 +61,17 @@ app.post("/CreateShop", (req, res) => {
     }
     res.send({
       body: "Shop Added Successfully!!!",
-      shopName: shopData.shopName
+      shopName: shopData.shopOwnerInstaId
     });
   });
 });
 app.get("/", (req, res) => {
   res.send("Experss reply");
 });
-app.get("/GetShop/:shopName", (req, res) => {
-  let id = req.params.shopName;
+app.get("/GetShop/:shopOwnerInstaId", (req, res) => {
+  let id = req.params.shopOwnerInstaId;
   //console.log(id);
-  shopModel.findOne({ shopName: { $eq: id } }, { _id: 0 }, function (
+  shopModel.findOne({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
     err,
     data
   ) {
@@ -94,6 +92,7 @@ app.get("/getShops", (req, res) => {
       shopOwner: 1,
       shopOwnerMobile: 1,
       shopOwnerAddress: 1,
+      shopOwnerInstaId: 1,
       shopLogo: 1
     },
     function (err, data) {
@@ -140,9 +139,9 @@ app.get("/getOrderCount", (req, res) => {
   });
 });
 
-app.get("/getOrders/:shopName", (req, res) => {
-  let id = req.params.shopName;
-  transactions.find({ shopName: { $eq: id } }, { _id: 0 }, function (
+app.get("/getOrders/:shopOwnerInstaId", (req, res) => {
+  let id = req.params.shopOwnerInstaId;
+  transactions.find({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
     err,
     data
   ) {
