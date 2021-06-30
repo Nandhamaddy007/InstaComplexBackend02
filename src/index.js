@@ -61,7 +61,7 @@ app.post("/CreateShop", (req, res) => {
     }
     res.send({
       body: "Shop Added Successfully!!!",
-      shopName: shopData.shopOwnerInstaId
+      shopOwnerInstaId: shopData.shopOwnerInstaId
     });
   });
 });
