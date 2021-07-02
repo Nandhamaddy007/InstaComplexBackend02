@@ -13,7 +13,7 @@ var transactionSchema = mongoose.Schema({
     type: Object,
     required: true
   },
-  shopName: {
+  shopOwnerInstaId: {
     type: String,
     required: true
   },

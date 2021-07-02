@@ -104,9 +104,9 @@ app.get("/getShops", (req, res) => {
     }
   );
 });
-app.post("/AddOrder", (req, res) => {
+app.post("/AddOrder", (req, res, next) => {
   let data = dataDecrypt(req.body.body);
-  //console.log(data);
+  console.log(data);
   let newTrans = transactions({
     orderId: data.orderId,
     products: data.products,
@@ -115,8 +115,9 @@ app.post("/AddOrder", (req, res) => {
     total: data.total,
     status: data.status
   });
-  newTrans.save(function (err, data) {
+  newTrans.save(function (err, data1) {
     if (err) {
+      console.log(err);
       res.send({ err: "Internal server error", code: 500, act: err });
     }
     //console.log(data);
