@@ -111,7 +111,7 @@ app.post("/AddOrder", (req, res) => {
     orderId: data.orderId,
     products: data.products,
     custDetails: data.custDetails,
-    shopName: data.shopName,
+    shopOwnerInstaId: data.shopOwnerInstaId,
     total: data.total,
     status: data.status
   });
