@@ -22,7 +22,8 @@ var transactionSchema = mongoose.Schema({
     required: true
   },
   status: String,
-  shipmentId: String
+  shipmentId: String,
+  orderedDate: String
 });
 module.exports = mongoose.model(
   "transaction",

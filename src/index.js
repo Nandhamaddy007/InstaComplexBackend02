@@ -113,7 +113,8 @@ app.post("/AddOrder", (req, res, next) => {
     custDetails: data.custDetails,
     shopOwnerInstaId: data.shopOwnerInstaId,
     total: data.total,
-    status: data.status
+    status: data.status,
+    orderedDate: data.orderedDate
   });
   newTrans.save(function (err, data1) {
     if (err) {
@@ -130,8 +131,12 @@ app.post("/AddOrder", (req, res, next) => {
   });
 });
 
-app.get("/getOrderCount", (req, res) => {
-  transactions.countDocuments({}, function (err, count) {
+app.get("/getOrderCount/:date", (req, res) => {
+  let today = req.params.date;
+  transactions.countDocuments({ orderedDate: { $eq: today } }, function (
+    err,
+    count
+  ) {
     if (err) {
       res.send({ err: "Internal server error", code: 500, act: err });
     } else {
@@ -170,6 +175,26 @@ app.patch("/updateOrder", (req, res) => {
         res.send({ err: "Internal server error", code: 500, act: err });
       }
       res.send({ msg: "Order updated successfully!!!" });
+    }
+  );
+});
+app.get("/getStatus/:orderId", (req, res) => {
+  let id = req.params.orderId;
+  transactions.findOne(
+    { orderId: { $eq: id } },
+    {
+      _id: 0,
+      products: 1,
+      shopOwnerInstaId: 1,
+      total: 1,
+      status: 1,
+      orderedDate: 1
+    },
+    function (err, data) {
+      if (err) {
+        res.send({ err: "Internal server error", code: 500, act: err });
+      }
+      res.send(data);
     }
   );
 });
