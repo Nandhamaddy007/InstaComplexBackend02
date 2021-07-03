@@ -194,7 +194,9 @@ app.get("/getStatus/:orderId", (req, res) => {
       if (err) {
         res.send({ err: "Internal server error", code: 500, act: err });
       }
-      res.send(data);
+      if (data == null) {
+        res.send({ msg: "no data" });
+      } else res.send({ data: data });
     }
   );
 });
