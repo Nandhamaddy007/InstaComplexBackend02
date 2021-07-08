@@ -4,8 +4,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 var CryptoJS = require("crypto-js");
-var multer = require("multer");
-var fs = require("fs");
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
 let app = express();
@@ -25,7 +23,7 @@ var loc =
   "mongodb+srv://nandhagopal:NandhaAdmin01!@mydb.4lyfk.gcp.mongodb.net/InstaComplexTest?retryWrites=true&w=majority";
 mongoose.connect(
   loc,
-  { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true },
+  { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false },
   function (error) {
     if (error) {
       console.log("Error! " + error);
@@ -162,13 +160,16 @@ app.get("/getOrders/:shopOwnerInstaId", (req, res) => {
 
 app.patch("/updateOrder", (req, res) => {
   let data = dataDecrypt(req.body.body);
-  //console.log(data);
+  // console.log(data);
   let temp = { status: data.status };
   if (data.status === "Shipped") {
     temp["shipmentId"] = data.shipmentId;
   }
   transactions.findOneAndUpdate(
-    { orderId: { $eq: data.orderId } },
+    {
+      orderId: { $eq: data.orderId },
+      shopOwnerInstaId: { $eq: data.shopOwnerInstaId }
+    },
     temp,
     function (err, data) {
       if (err) {

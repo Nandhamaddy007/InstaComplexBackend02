@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ProdDetails = require("./productSchema");
 var shopSchema = new mongoose.Schema({
   shopName: String,
   shopOwner: String,
@@ -7,9 +8,18 @@ var shopSchema = new mongoose.Schema({
   shopOwnerAddress: String,
   shopOwnerInstaId: String,
   shopOwnerGpay: String,
-  shopOwnerPaytm: String,
   shopLogo: String,
-  ProductDetails: Array
+  shopCreatedAt: String,
+  ProductDetails: [
+    {
+      productName: String,
+      productColor: String,
+      productId: String,
+      productSrc: String,
+      productAvailability: Boolean,
+      ProductVariance: Array
+    }
+  ]
 });
 
 module.exports = mongoose.model("shop", shopSchema, "shopdetails");
