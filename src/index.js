@@ -1,17 +1,15 @@
-//var http = require("http");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-
 const cookieParser = require("cookie-parser");
 
-var CryptoJS = require("crypto-js");
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
 var tkV = require("./middleware");
 var UIBased = require("./UIBasedRoutes");
+const utility = require("./Utilities");
 let app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,7 +49,7 @@ app.use("/", tkV.tokenVerifier);
 app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
   //console.log(req.params.shopName);
   let name = req.params.shopOwnerInstaId;
-  let shopData = dataDecrypt(req.body.body);
+  let shopData = utility.dataDecrypt(req.body.body);
   console.log(shopData);
   shopModel.findOneAndUpdate(
     { shopOwnerInstaId: { $eq: name } },
@@ -68,7 +66,7 @@ app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
 
 app.post("/CreateShop", (req, res) => {
   //console.log(req.body);
-  let shopData = dataDecrypt(req.body.body);
+  let shopData = utility.dataDecrypt(req.body.body);
   //console.log(shopData);
   var newShop = new shopModel(shopData);
   newShop.save(function (err, data) {
@@ -86,7 +84,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/AddOrder", (req, res, next) => {
-  let data = dataDecrypt(req.body.body);
+  let data = utility.dataDecrypt(req.body.body);
   console.log(data);
   let newTrans = transactions({
     orderId: data.orderId,
@@ -135,14 +133,14 @@ app.get("/getOrders/:shopOwnerInstaId", (req, res) => {
     if (err) {
       res.send({ err: "Internal server error", code: 500, act: err });
     }
-    let cipherText = dataEncrypt(data);
+    let cipherText = utility.dataEncrypt(data);
 
     res.send({ body: cipherText });
   });
 });
 
 app.patch("/updateOrder", (req, res) => {
-  let data = dataDecrypt(req.body.body);
+  let data = utility.dataDecrypt(req.body.body);
   // console.log(data);
   let temp = { status: data.status };
   if (data.status === "Shipped") {
@@ -162,36 +160,6 @@ app.patch("/updateOrder", (req, res) => {
     }
   );
 });
-app.get("/getStatus/:orderId", (req, res) => {
-  let id = req.params.orderId;
-  transactions.findOne(
-    { orderId: { $eq: id } },
-    {
-      _id: 0,
-      products: 1,
-      shopOwnerInstaId: 1,
-      total: 1,
-      status: 1,
-      orderedDate: 1
-    },
-    function (err, data) {
-      if (err) {
-        res.send({ err: "Internal server error", code: 500, act: err });
-      }
-      if (data == null) {
-        res.send({ msg: "no data" });
-      } else res.send({ data: data });
-    }
-  );
-});
-
-function dataEncrypt(data) {
-  return CryptoJS.AES.encrypt(JSON.stringify(data), "!@#$%^&*()").toString();
-}
-function dataDecrypt(data) {
-  let bytes = CryptoJS.AES.decrypt(data, "!@#$%^&*()");
-  return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-}
 
 //create a server object:
 app.listen(8080, () => console.log("Server started"));

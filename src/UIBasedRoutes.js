@@ -3,6 +3,7 @@ const router = express.Router();
 
 const shopModel = require("./shopSchema");
 const utility = require("./Utilities");
+var transactions = require("./TransactionSchema");
 
 router.get("/GetShop/:shopOwnerInstaId", (req, res) => {
   let id = req.params.shopOwnerInstaId;
@@ -37,6 +38,29 @@ router.get("/getShops", (req, res) => {
       }
       let cipherText = utility.dataEncrypt(data);
       res.send({ body: cipherText });
+    }
+  );
+});
+
+router.get("/getStatus/:orderId", (req, res) => {
+  let id = req.params.orderId;
+  transactions.findOne(
+    { orderId: { $eq: id } },
+    {
+      _id: 0,
+      products: 1,
+      shopOwnerInstaId: 1,
+      total: 1,
+      status: 1,
+      orderedDate: 1
+    },
+    function (err, data) {
+      if (err) {
+        res.send({ err: "Internal server error", code: 500, act: err });
+      }
+      if (data == null) {
+        res.send({ msg: "no data" });
+      } else res.send({ data: data });
     }
   );
 });
