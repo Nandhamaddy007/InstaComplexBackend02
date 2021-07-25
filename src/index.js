@@ -33,6 +33,7 @@ mongoose.connect(
     if (error) {
       console.log("Error! " + error);
     }
+    console.log("Connected");
   }
 );
 app.post("/token/signIn", (req, res) => {
@@ -81,6 +82,21 @@ app.post("/CreateShop", (req, res) => {
 });
 app.get("/", (req, res) => {
   res.send("Experss reply");
+});
+app.get("/GetShop/:shopOwnerInstaId", (req, res) => {
+  let id = req.params.shopOwnerInstaId;
+  //console.log(id);
+  shopModel.findOne({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
+    err,
+    data
+  ) {
+    if (err) {
+      res.send({ err: "Internal server error", code: 500, act: err });
+    }
+    //console.log(data);
+    let cipherText = utility.dataEncrypt(data);
+    res.send({ body: cipherText });
+  });
 });
 
 app.post("/AddOrder", (req, res, next) => {

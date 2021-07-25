@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
 const key = "!@#$%&^%";
 function tokenVerifier(req, res, next) {
-  console.log("came to middleware");
-  //console.log("cookie:", req.cookies.token);
   if (req.cookies.token) {
     //console.log(req.body.token);
     var payload;
