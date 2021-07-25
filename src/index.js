@@ -10,7 +10,7 @@ const cookieParser = require("cookie-parser");
 var CryptoJS = require("crypto-js");
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
-var tokenVerifier = require("./middleware");
+var tkV = require("./middleware");
 let app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,16 +36,17 @@ mongoose.connect(
     }
   }
 );
-app.use("/", tokenVerifier.tokenVerifier);
 app.post("/token/signIn", (req, res) => {
   var userdata = {
     name: req.body.user,
     id: "nandhaid"
   };
-  let token = jwt.sign(userdata, tokenVerifier.getKey(), { expiresIn: "10m" });
-  res.cookie("token", token, { httpOnly: true });
-  res.cookie("expiresIn", "600000");
+  let token = jwt.sign(userdata, tkV.getKey(), { expiresIn: "10m" });
+  res.cookie("token", token, { httpOnly: true }).send("cookies set");
 });
+app.get("/token/refresh", tkV.tokenRefresher);
+app.use("/", tkV.tokenVerifier);
+
 app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
   //console.log(req.params.shopName);
   let name = req.params.shopOwnerInstaId;
