@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const expressJWT = require("express-jwt");
 const key = "!@#$%&^%";
 function tokenVerifier(req, res, next) {
   console.log("came to middleware");

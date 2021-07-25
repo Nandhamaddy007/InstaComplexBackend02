@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const expressJWT = require("express-jwt");
+
 const cookieParser = require("cookie-parser");
 
 var CryptoJS = require("crypto-js");
