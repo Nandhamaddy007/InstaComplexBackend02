@@ -11,6 +11,7 @@ var CryptoJS = require("crypto-js");
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
 var tkV = require("./middleware");
+var UIBased = require("./UIBasedRoutes");
 let app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,9 +45,9 @@ app.post("/token/signIn", (req, res) => {
   let token = jwt.sign(userdata, tkV.getKey(), { expiresIn: "10m" });
   res.cookie("token", token, { httpOnly: true }).send("cookies set");
 });
+app.use("/UI", UIBased);
 app.get("/token/refresh", tkV.tokenRefresher);
 app.use("/", tkV.tokenVerifier);
-
 app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
   //console.log(req.params.shopName);
   let name = req.params.shopOwnerInstaId;
@@ -83,42 +84,7 @@ app.post("/CreateShop", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Experss reply");
 });
-app.get("/GetShop/:shopOwnerInstaId", (req, res) => {
-  let id = req.params.shopOwnerInstaId;
-  //console.log(id);
-  shopModel.findOne({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
-    err,
-    data
-  ) {
-    if (err) {
-      res.send({ err: "Internal server error", code: 500, act: err });
-    }
-    //console.log(data);
-    let cipherText = dataEncrypt(data);
-    res.send({ body: cipherText });
-  });
-});
-app.get("/getShops", (req, res) => {
-  shopModel.find(
-    {},
-    {
-      _id: 0,
-      shopName: 1,
-      shopOwner: 1,
-      shopOwnerMobile: 1,
-      shopOwnerAddress: 1,
-      shopOwnerInstaId: 1,
-      shopLogo: 1
-    },
-    function (err, data) {
-      if (err) {
-        res.send({ err: "Internal server error", code: 500, act: err });
-      }
-      let cipherText = dataEncrypt(data);
-      res.send({ body: cipherText });
-    }
-  );
-});
+
 app.post("/AddOrder", (req, res, next) => {
   let data = dataDecrypt(req.body.body);
   console.log(data);
