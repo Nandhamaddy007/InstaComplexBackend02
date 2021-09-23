@@ -11,7 +11,7 @@ router.get("/GetOtp/:Email", (req, res) => {
     service: "gmail",
     auth: {
       user: "Nandhamaddy007@gmail.com",
-      pass: "Television007#"
+      pass: "aejtxqufukpxihba"
     }
   });
   const otp = otpGenerator.generate(4, {
@@ -24,7 +24,7 @@ router.get("/GetOtp/:Email", (req, res) => {
   var Mail = {
     from: "Nandhamaddy007@gmail.com",
     to: id,
-    subject: "Mail from nodejs",
+    subject: "Mail from Instacomplex",
     html: `<h1>Instacomplex OTP for Login</h1></br>
     <h4>Your otp is: <b>${otp}</b> </h4></br>
     <h4>Will expire in 10 Minutes</h4>`
