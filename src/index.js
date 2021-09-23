@@ -109,8 +109,8 @@ mongoose.connect(
 //     }
 //   );
 // });
-app.use("/UI", UIBased);
 app.use("/Auth", AuthBased);
+app.use("/UI", UIBased);
 app.get("/token/refresh", tkV.tokenRefresher);
 app.use("/", tkV.tokenVerifier);
 app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
