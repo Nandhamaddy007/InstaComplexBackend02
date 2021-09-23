@@ -38,4 +38,9 @@ router.get("/GetOtp/:Email", (req, res) => {
   //   }
   // });
 });
+router.post("/SubmitOtp", (req, res) => {
+  let pack = utility.dataDecrypt(req.body.otp);
+  console.log(pack);
+  res.send(pack);
+});
 module.exports = router;
