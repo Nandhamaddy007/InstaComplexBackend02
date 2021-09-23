@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const key = "!@#$%&^%";
 function tokenVerifier(req, res, next) {
   let nonsecure = ["/Auth", "UI"];
+  console.log(nonsecure.includes(req.path));
   if (nonsecure.includes(req.path)) return next();
   if (req.cookies.token) {
     //console.log(req.body.token);

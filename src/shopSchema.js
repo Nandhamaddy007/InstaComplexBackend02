@@ -10,6 +10,8 @@ var shopSchema = new mongoose.Schema({
   shopOwnerGpay: String,
   shopLogo: String,
   shopCreatedAt: String,
+  PIN: String,
+  temp: String,
   ProductDetails: [
     {
       productName: String,

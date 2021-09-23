@@ -7,4 +7,22 @@ function dataDecrypt(data) {
   let bytes = CryptoJS.AES.decrypt(data, "!@#$%^&*()");
   return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 }
-module.exports = { dataEncrypt, dataDecrypt };
+function PINEncrypt(data) {
+  return CryptoJS.AES.encrypt(data, "!@#$%^&*()0192837465").toString();
+}
+function PINDecrypt(data) {
+  return CryptoJS.AES.decrypt(data, "!@#$%^&*()0192837465").toString(
+    CryptoJS.enc.Utf8
+  );
+}
+function AddMinutesToDate(date, minutes) {
+  return new Date(date.getTime() + minutes * 60000);
+}
+
+module.exports = {
+  dataEncrypt,
+  dataDecrypt,
+  PINEncrypt,
+  PINDecrypt,
+  AddMinutesToDate
+};
