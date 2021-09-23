@@ -4,24 +4,37 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const { OAuth2Client } = require("google-auth-library");
+const https = require("https");
 
 var shopModel = require("./shopSchema");
 var transactions = require("./TransactionSchema");
 var tkV = require("./middleware");
 var UIBased = require("./UIBasedRoutes");
+var AuthBased = require("./AuthRoutes");
 const utility = require("./Utilities");
+const { verify } = require("crypto");
 let app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://angular-ivy-bddfhf.stackblitz.io"],
+    credentials: true
+  })
+);
 app.use(function (req, res, next) {
   //res.header("Access-Control-Allow-Origin",heroku);
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://angular-ivy-bddfhf.stackblitz.io"
+  );
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
   );
+  res.header("credentials", true);
   next();
 });
 var loc =
@@ -36,15 +49,68 @@ mongoose.connect(
     console.log("Connected");
   }
 );
-app.post("/token/signIn", (req, res) => {
-  var userdata = {
-    name: req.body.user,
-    id: "nandhaid"
-  };
-  let token = jwt.sign(userdata, tkV.getKey(), { expiresIn: "10m" });
-  res.cookie("token", token, { httpOnly: true }).send("cookies set");
-});
+// const clientId =
+//   "841021988909-76o0jt8lkkdchknitjtvf8r7ea362fft.apps.googleusercontent.com";
+// const client = new OAuth2Client(clientId);
+// app.get("/check", (req, res) => {
+//   let id = req.body.id;
+//   console.log(req.body);
+//   //verif(id, res);
+//   res.send({ hello: req.body });
+// });
+// function verif(id, res) {
+//   client
+//     .verifyIdToken({
+//       idToken: id,
+//       audience: clientId
+//     })
+//     .then((ticket) => {
+//       const payload = ticket.getPayload();
+//       const userid = payload["sub"];
+//       console.log("userid: ", userid);
+//       return payload;
+//     })
+//     .then((pay) => {
+//       res.send({ msg: "auth successfull", pay: pay });
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// }
+// app.post("/token/signIn", (req, res) => {
+//   let googleData = utility.dataDecrypt(req.body.user);
+//   //console.log("googl: ", googleData);
+//   verif(googleData.Idtoken).catch(console.error);
+//   shopModel.findOne(
+//     { shopOwnerEmail: { $eq: googleData.email } },
+//     { _id: 0, shopOwnerInstaId: 1 },
+//     function (err, data) {
+//       if (err) {
+//         res.send({ err: "Internal server error", code: 500, act: err });
+//       }
+//       let token;
+//       console.log(data);
+//       if (data) {
+//         var userdata = {
+//           emailId: googleData.email,
+//           InstaID: data.shopOwnerInstaId
+//         };
+//         token = jwt.sign(userdata, tkV.getKey(), {
+//           expiresIn: "10m",
+//           subject: "AdminId"
+//         });
+//       } else {
+//         token = jwt.sign(userdata, tkV.getKey(), {
+//           expiresIn: "10m",
+//           subject: "UserId"
+//         });
+//       }
+//       res.json({ Id: token, expiresIn: 60 * 10 });
+//     }
+//   );
+// });
 app.use("/UI", UIBased);
+app.use("/Auth", AuthBased);
 app.get("/token/refresh", tkV.tokenRefresher);
 app.use("/", tkV.tokenVerifier);
 app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
