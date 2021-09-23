@@ -16,7 +16,7 @@ function PINDecrypt(data) {
   );
 }
 function AddMinutesToDate(date, minutes) {
-  return new Date(date.getTime() + minutes * 60000);
+  return date.getTime() + minutes * 60000;
 }
 
 module.exports = {

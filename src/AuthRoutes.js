@@ -39,7 +39,7 @@ router.post("/GetOtp", (req, res) => {
         "temp: ",
         utility.dataEncrypt({
           otp: utility.PINEncrypt(otp),
-          expireAt: utility.AddMinutesToTime(new Date(), 10)
+          expireAt: utility.AddMinutesToDate(new Date(), 10)
         })
       );
       // res.send({ h: "hello" });
@@ -48,7 +48,7 @@ router.post("/GetOtp", (req, res) => {
         {
           temp: utility.dataEncrypt({
             otp: utility.PINEncrypt(otp),
-            expireAt: utility.AddMinutesToTime(new Date(), 10)
+            expireAt: utility.AddMinutesToDate(new Date(), 10)
           })
         },
         function (err, data) {
