@@ -5,8 +5,8 @@ const otpGenerator = require("otp-generator");
 
 const utility = require("./Utilities");
 var shopModel = require("./shopSchema");
-router.get("/GetOtp/:Email", (req, res) => {
-  let id = utility.dataDecrypt(req.params.Email);
+router.post("/GetOtp", (req, res) => {
+  let id = utility.dataDecrypt(req.body.body);
   var transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -23,7 +23,7 @@ router.get("/GetOtp/:Email", (req, res) => {
   console.log("OTP: ", otp);
   var Mail = {
     from: "Nandhamaddy007@gmail.com",
-    to: id,
+    to: id.email,
     subject: "Mail from Instacomplex",
     html: `<h1>Instacomplex OTP for Login</h1></br>
     <h4>Your otp is: <b>${otp}</b> </h4></br>
@@ -34,9 +34,17 @@ router.get("/GetOtp/:Email", (req, res) => {
       console.log(err);
       res.send({ err: "Internal server error", code: 500, act: err });
     } else {
-      console.log("info:", info);
+      // console.log("info:", info);
+      console.log(
+        "temp: ",
+        utility.dataEncrypt({
+          otp: utility.PINEncrypt(otp),
+          expireAt: utility.AddMinutesToTime(new Date(), 10)
+        })
+      );
+      // res.send({ h: "hello" });
       shopModel.findOneAndUpdate(
-        { shopOwnerEmail: id },
+        { shopOwnerEmail: { $eq: id.email } },
         {
           temp: utility.dataEncrypt({
             otp: utility.PINEncrypt(otp),
@@ -47,9 +55,10 @@ router.get("/GetOtp/:Email", (req, res) => {
           if (err) {
             res.send({ err: "Internal server error", code: 500, act: err });
           }
-          if (data) {
-            res.send({ Msg: "Otp sent successfully..." });
-          }
+
+          res.send({ Msg: "Otp sent successfully..." });
+
+          console.log("data: ", data);
         }
       );
     }
