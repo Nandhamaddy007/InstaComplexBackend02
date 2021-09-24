@@ -34,15 +34,6 @@ router.post("/GetOtp", (req, res) => {
       console.log(err);
       res.send({ err: "Internal server error", code: 500, act: err });
     } else {
-      // console.log("info:", info);
-      console.log(
-        "temp: ",
-        utility.dataEncrypt({
-          otp: utility.PINEncrypt(otp),
-          expireAt: utility.AddMinutesToDate(new Date(), 10)
-        })
-      );
-      // res.send({ h: "hello" });
       shopModel.findOneAndUpdate(
         { shopOwnerEmail: { $eq: id.email } },
         {
@@ -55,10 +46,7 @@ router.post("/GetOtp", (req, res) => {
           if (err) {
             res.send({ err: "Internal server error", code: 500, act: err });
           }
-
           res.send({ Msg: "Otp sent successfully..." });
-
-          console.log("data: ", data);
         }
       );
     }
@@ -66,7 +54,34 @@ router.post("/GetOtp", (req, res) => {
 });
 router.post("/SubmitOtp", (req, res) => {
   let pack = utility.dataDecrypt(req.body.otp);
-  console.log(pack);
-  res.send(pack);
+  shopModel.findOne(
+    { shopOwnerEmail: { $eq: pack.email } },
+    { _id: 0, PIN: 1, temp: 1 },
+    function (err, data) {
+      if (err) {
+        res.send({ err: "Internal server error", code: 500, act: err });
+      }
+      let check = utility.dataDecrypt(data.temp);
+      if (check.expireAt < new Date().getTime()) {
+        if (
+          utility.PINDecrypt(check.otp) + utility.PINDecrypt(data.PIN) ===
+          pack.pinotp
+        ) {
+          shopModel.findOneAndUpdate(
+            { shopOwnerEmail: { $eq: pack.email } },
+            {
+              temp: "IN"
+            }
+          );
+        } else {
+          res.status(401).send({
+            Msg: "Please check your PIN,OTP or Email id and try again..."
+          });
+        }
+      } else {
+        res.status(410).send({ Msg: "OTP Expired please try again..." });
+      }
+    }
+  );
 });
 module.exports = router;

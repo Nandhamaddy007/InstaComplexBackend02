@@ -1,27 +1,27 @@
 const jwt = require("jsonwebtoken");
 const key = "!@#$%&^%";
-// function tokenVerifier(req, res, next) {
-//   let nonsecure = ["/Auth", "UI"];
-//   console.log(nonsecure.includes(req.path));
-//   if (nonsecure.includes(req.path)) return next();
-//   if (req.cookies.token) {
-//     //console.log(req.body.token);
-//     var payload;
-//     try {
-//       payload = jwt.verify(req.cookies.token, key);
-//       console.log(payload);
-//     } catch (e) {
-//       console.log(e);
-//       res.status(400).send({ err: "Bad auth", expired: e.expiredAt });
-//       return;
-//     }
-//     // console.log(payload);
-//   } else {
-//     res.status(401).send({ err: "Unauthorized Request..." });
-//     return;
-//   }
-//   next();
-// }
+function tokenVerifier(req, res, next) {
+  let nonsecure = ["/Auth", "UI"];
+  console.log(nonsecure.includes(req.path));
+  if (nonsecure.includes(req.path)) return next();
+  if (req.cookies.token) {
+    //console.log(req.body.token);
+    var payload;
+    try {
+      payload = jwt.verify(req.cookies.token, key);
+      console.log(payload);
+    } catch (e) {
+      console.log(e);
+      res.status(400).send({ err: "Bad auth", expired: e.expiredAt });
+      return;
+    }
+    // console.log(payload);
+  } else {
+    res.status(401).send({ err: "Unauthorized Request..." });
+    return;
+  }
+  next();
+}
 function getKey() {
   return key;
 }
@@ -52,4 +52,4 @@ function tokenRefresher(req, res) {
   });
   res.cookie("token", newToken, { httpOnly: true }).end();
 }
-module.exports = { getKey, tokenRefresher };
+module.exports = { getKey, tokenRefresher, tokenVerifier };
