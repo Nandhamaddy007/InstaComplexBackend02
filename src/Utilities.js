@@ -1,4 +1,5 @@
 var CryptoJS = require("crypto-js");
+const shopModel = require("./shopSchema");
 
 function dataEncrypt(data) {
   return CryptoJS.AES.encrypt(JSON.stringify(data), "!@#$%^&*()").toString();
@@ -19,10 +20,23 @@ function AddMinutesToDate(date, minutes) {
   return date.getTime() + minutes * 60000;
 }
 
+function Logout(Email) {
+  shopModel.findOneAndUpdate(
+    { shopOwnerEmail: { $eq: Email } },
+    { temp: "OUT" },
+    function (err, data) {
+      if (err) {
+        console.log(err);
+      }
+    }
+  );
+}
+
 module.exports = {
   dataEncrypt,
   dataDecrypt,
   PINEncrypt,
   PINDecrypt,
-  AddMinutesToDate
+  AddMinutesToDate,
+  Logout
 };

@@ -13,6 +13,8 @@ var tkV = require("./middleware");
 var UIBased = require("./UIBasedRoutes");
 var AuthBased = require("./AuthRoutes");
 const utility = require("./Utilities");
+const secureRoutes = require("./secureRoutes");
+
 const { verify } = require("crypto");
 let app = express();
 app.use(bodyParser.json());
@@ -112,24 +114,8 @@ mongoose.connect(
 app.use("/Auth", AuthBased);
 app.use("/UI", UIBased);
 app.get("/token/refresh", tkV.tokenRefresher);
-app.use("/", tkV.tokenVerifier);
-app.post("/updateShop/:shopOwnerInstaId", (req, res) => {
-  //console.log(req.params.shopName);
-  let name = req.params.shopOwnerInstaId;
-  let shopData = utility.dataDecrypt(req.body.body);
-  console.log(shopData);
-  shopModel.findOneAndUpdate(
-    { shopOwnerInstaId: { $eq: name } },
-    shopData,
-    function (err, data) {
-      if (err) {
-        res.send({ err: "Internal server error", code: 500, act: err });
-      }
-      console.log(data);
-      res.send({ body: "Shop Updated Successfully!!!" });
-    }
-  );
-});
+app.use("/secure", tkV.tokenVerifier);
+app.use("/secure", secureRoutes);
 
 app.post("/CreateShop", (req, res) => {
   //console.log(req.body);
@@ -147,7 +133,7 @@ app.post("/CreateShop", (req, res) => {
   });
 });
 app.get("/", (req, res) => {
-  res.send("Experss reply");
+  res.send({ Msg: "Experss reply" });
 });
 app.get("/GetShop/:shopOwnerInstaId", (req, res) => {
   let id = req.params.shopOwnerInstaId;
@@ -204,43 +190,6 @@ app.get("/getOrderCount/:date", (req, res) => {
       res.send({ cnt: count });
     }
   });
-});
-
-app.get("/getOrders/:shopOwnerInstaId", (req, res) => {
-  let id = req.params.shopOwnerInstaId;
-  transactions.find({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
-    err,
-    data
-  ) {
-    if (err) {
-      res.send({ err: "Internal server error", code: 500, act: err });
-    }
-    let cipherText = utility.dataEncrypt(data);
-
-    res.send({ body: cipherText });
-  });
-});
-
-app.patch("/updateOrder", (req, res) => {
-  let data = utility.dataDecrypt(req.body.body);
-  // console.log(data);
-  let temp = { status: data.status };
-  if (data.status === "Shipped") {
-    temp["shipmentId"] = data.shipmentId;
-  }
-  transactions.findOneAndUpdate(
-    {
-      orderId: { $eq: data.orderId },
-      shopOwnerInstaId: { $eq: data.shopOwnerInstaId }
-    },
-    temp,
-    function (err, data) {
-      if (err) {
-        res.send({ err: "Internal server error", code: 500, act: err });
-      }
-      res.send({ msg: "Order updated successfully!!!" });
-    }
-  );
 });
 
 //create a server object:
