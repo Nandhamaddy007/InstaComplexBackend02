@@ -30,6 +30,7 @@ router.get("/getOrders/:shopOwnerInstaId", (req, res) => {
     data
   ) {
     if (err) {
+      console.log(err);
       res.send({ err: "Internal server error", code: 500, act: err });
     }
     let cipherText = utility.dataEncrypt(data);
