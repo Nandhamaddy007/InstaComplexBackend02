@@ -8,17 +8,18 @@ var transactions = require("./TransactionSchema");
 router.get("/GetShop/:shopOwnerInstaId", (req, res) => {
   let id = req.params.shopOwnerInstaId;
   //console.log(id);
-  shopModel.findOne({ shopOwnerInstaId: { $eq: id } }, { _id: 0 }, function (
-    err,
-    data
-  ) {
-    if (err) {
-      res.send({ err: "Internal server error", code: 500, act: err });
+  shopModel.findOne(
+    { shopOwnerInstaId: { $eq: id } },
+    { _id: 0, ProductDetails: 1 },
+    function (err, data) {
+      if (err) {
+        res.send({ err: "Internal server error", code: 500, act: err });
+      }
+      //console.log(data);
+      let cipherText = utility.dataEncrypt(data);
+      res.send({ body: cipherText });
     }
-    //console.log(data);
-    let cipherText = utility.dataEncrypt(data);
-    res.send({ body: cipherText });
-  });
+  );
 });
 router.get("/getShops", (req, res) => {
   shopModel.find(

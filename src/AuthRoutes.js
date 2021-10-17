@@ -133,7 +133,8 @@ router.post("/SubmitOtp", (req, res) => {
               };
               let token = tkV.getToken(userdata);
               console.log(token);
-              res.send({ tkn: utility.dataEncrypt(token) });
+              let time = utility.AddMinutesToDate(new Date(), 14);
+              res.send({ tkn: utility.dataEncrypt(token), expiresIn: time });
             }
           );
         } else {
