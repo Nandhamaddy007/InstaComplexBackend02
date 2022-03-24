@@ -10,7 +10,7 @@ router.get("/GetShop/:shopOwnerInstaId", (req, res) => {
   //console.log(id);
   shopModel.findOne(
     { shopOwnerInstaId: { $eq: id } },
-    { _id: 0, ProductDetails: 1 },
+    { _id: 0, ProductDetails: 1, shopLogo: 1 },
     function (err, data) {
       if (err) {
         res.send({ err: "Internal server error", code: 500, act: err });

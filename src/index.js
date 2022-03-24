@@ -21,16 +21,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
-  cors({
-    origin: ["https://angular-ivy-bddfhf.stackblitz.io"],
-    credentials: true
-  })
+  cors()
+  //   {
+  //   //origin: ["https://angular-ivy-zkc2pc.stackblitz.io"],
+  //   origin: ["**"],
+  //   credentials: true
+  // }
 );
 app.use(function (req, res, next) {
   //res.header("Access-Control-Allow-Origin",heroku);
   res.header(
     "Access-Control-Allow-Origin",
-    "https://angular-ivy-bddfhf.stackblitz.io"
+    //"https://angular-ivy-zkc2pc.stackblitz.io"
+    "https://angular-ivy-zkc2pc.stackblitz.io"
   );
   res.header(
     "Access-Control-Allow-Headers",
@@ -133,7 +136,7 @@ app.post("/CreateShop", (req, res) => {
   });
 });
 app.get("/", (req, res) => {
-  res.send({ Msg: "Experss reply" });
+  res.send({ Msg: "Experss reply hello" });
 });
 app.get("/GetShop/:shopOwnerInstaId", (req, res) => {
   let id = req.params.shopOwnerInstaId;

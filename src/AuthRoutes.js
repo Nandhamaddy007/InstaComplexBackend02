@@ -9,66 +9,74 @@ const utility = require("./Utilities");
 var shopModel = require("./shopSchema");
 router.post("/GetOtp", (req, res) => {
   let id = utility.dataDecrypt(req.body.body);
+  console.log(id);
   shopModel.findOne(
     { shopOwnerEmail: { $eq: id.email } },
     { _id: 0, temp: 1 },
     function (err, data) {
-      if (err) {
-        res.send({ err: "Internal server error", code: 500, act: err });
-      } //check already logged in
-      if (data.temp === "IN") {
-        res.status(406).send({
-          Msg: "User has already logged in, kindly logout and try again"
+      console.log(data);
+      if (data == null) {
+        res.status(404).send({
+          Msg: "User does not exist, please create a new shop."
         });
       } else {
-        var transporter = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: "Nandhamaddy007@gmail.com",
-            pass: "aejtxqufukpxihba"
-          }
-        });
-        const otp = otpGenerator.generate(4, {
-          digits: true,
-          alphabets: true,
-          upperCase: true,
-          specialChars: false
-        });
-        console.log("OTP: ", otp);
-        var Mail = {
-          from: "Nandhamaddy007@gmail.com",
-          to: id.email,
-          subject: "Mail from Instacomplex",
-          html: `<h1>Instacomplex OTP for Login</h1></br>
+        if (err) {
+          res.send({ err: "Internal server error", code: 500, act: err });
+        } //check already logged in
+        if (data.temp === "IN") {
+          res.status(406).send({
+            Msg: "User has already logged in, kindly logout and try again"
+          });
+        } else {
+          var transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: "Nandhamaddy007@gmail.com",
+              pass: "aejtxqufukpxihba"
+            }
+          });
+          const otp = otpGenerator.generate(6, {
+            digits: true,
+            alphabets: true,
+            upperCase: true,
+            specialChars: false
+          });
+          console.log("OTP: ", otp);
+          var Mail = {
+            from: "Nandhamaddy007@gmail.com",
+            to: id.email,
+            subject: "Mail from Instacomplex",
+            html: `<h1>Instacomplex OTP for Login</h1></br>
         <h4>Your otp is: <b>${otp}</b> </h4></br>
         <h4>Will expire in 10 Minutes</h4>`
-        };
-        transporter.sendMail(Mail, (err, info) => {
-          if (err) {
-            console.log(err);
-            res.send({ err: "Internal server error", code: 500, act: err });
-          } else {
-            shopModel.findOneAndUpdate(
-              { shopOwnerEmail: { $eq: id.email } },
-              {
-                temp: utility.dataEncrypt({
-                  otp: utility.PINEncrypt(otp),
-                  expireAt: utility.AddMinutesToDate(new Date(), 10)
-                })
-              },
-              function (err, data) {
-                if (err) {
-                  res.send({
-                    err: "Internal server error",
-                    code: 500,
-                    act: err
-                  });
+          };
+          transporter.sendMail(Mail, (err, info) => {
+            if (err) {
+              console.log(err);
+              res.send({ err: "Internal server error", code: 500, act: err });
+            } else {
+              shopModel.findOneAndUpdate(
+                { shopOwnerEmail: { $eq: id.email } },
+                {
+                  temp: utility.dataEncrypt({
+                    otp: utility.PINEncrypt(otp),
+                    expireAt: utility.AddMinutesToDate(new Date(), 10)
+                  })
+                },
+                function (err, data) {
+                  if (err) {
+                    res.send({
+                      err: "Internal server error",
+                      code: 500,
+                      act: err
+                    });
+                  }
+                  res.send({ Msg: "Otp sent successfully..." });
                 }
-                res.send({ Msg: "Otp sent successfully..." });
-              }
-            );
-          }
-        });
+              );
+            }
+          });
+        }
       }
     }
   );
@@ -108,7 +116,7 @@ router.post("/SubmitOtp", (req, res) => {
   let pack = utility.dataDecrypt(req.body.otp);
   shopModel.findOne(
     { shopOwnerEmail: { $eq: pack.email } },
-    { _id: 0, PIN: 1, temp: 1 },
+    { _id: 0, temp: 1 },
     function (err, data) {
       if (err) {
         res.send({ err: "Internal server error", code: 500, act: err });
@@ -116,10 +124,7 @@ router.post("/SubmitOtp", (req, res) => {
       console.log(data);
       let check = utility.dataDecrypt(data.temp);
       if (check.expireAt > new Date().getTime()) {
-        if (
-          utility.PINDecrypt(check.otp) + utility.PINDecrypt(data.PIN) ===
-          pack.pinotp
-        ) {
+        if (utility.PINDecrypt(check.otp) === pack.pinotp) {
           shopModel.findOneAndUpdate(
             { shopOwnerEmail: { $eq: pack.email } },
             {
@@ -134,12 +139,16 @@ router.post("/SubmitOtp", (req, res) => {
               let token = tkV.getToken(userdata);
               console.log(token);
               let time = utility.AddMinutesToDate(new Date(), 14);
-              res.send({ tkn: utility.dataEncrypt(token), expiresIn: time });
+              res.send({
+                tkn: utility.dataEncrypt(token),
+                expiresIn: time,
+                m: pack.email
+              });
             }
           );
         } else {
           res.status(401).send({
-            Msg: "Please check your PIN,OTP or Email id and try again..."
+            Msg: "Please check your OTP or Email id and try again..."
           });
         }
       } else {
