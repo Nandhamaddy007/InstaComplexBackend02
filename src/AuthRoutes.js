@@ -114,8 +114,9 @@ router.patch("/setLogout", (req, res) => {
 
 router.post("/SubmitOtp", (req, res) => {
   let pack = utility.dataDecrypt(req.body.otp);
+  console.log(pack);
   shopModel.findOne(
-    { shopOwnerEmail: { $eq: pack.email } },
+    { shopOwnerEmail: { $eq: pack.email.toLowerCase() } },
     { _id: 0, temp: 1 },
     function (err, data) {
       if (err) {
@@ -130,7 +131,9 @@ router.post("/SubmitOtp", (req, res) => {
             {
               temp: "IN"
             },
+            { projection: { shopOwnerInstaId: 1, _id: 0 } },
             function (err, data) {
+              console.log("data-->", data);
               //send token
               var userdata = {
                 role: "Admin",
@@ -142,7 +145,8 @@ router.post("/SubmitOtp", (req, res) => {
               res.send({
                 tkn: utility.dataEncrypt(token),
                 expiresIn: time,
-                m: pack.email
+                m: pack.email,
+                i: data.shopOwnerInstaId
               });
             }
           );
